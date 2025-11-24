@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YouTube Ad Recommendation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            border-bottom: 3px solid #4CAF50;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid #4CAF50;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4CAF50;
+        }
+
+        input[type="number"] {
+            width: 150px;
+            padding: 10px;
+            background: #0d0d0d;
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #66FF66;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #results {
+            margin-top: 20px;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .metric-card.highlight {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            border-color: #66FF66;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 8px;
+        }
+
+        .metric-card.highlight .metric-value {
+            color: white;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #aaa;
+            font-weight: 500;
+        }
+
+        .metric-card.highlight .metric-label {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #4CAF50;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4CAF50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #ccc;
+            border-bottom: 1px solid #333;
+        }
+
+        tr:hover {
+            background: #2d2d2d;
+        }
+
+        tr:nth-child(even) {
+            background: #1a1a1a;
+        }
+
+        tr:nth-child(even):hover {
+            background: #2d2d2d;
+        }
+
+        .loading {
+            display: none;
+            color: white;
+            margin-left: 15px;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #1a1a1a;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 YouTube Ad Recommendation</h1>
+            <p class="subtitle">AI-Powered YouTube Ad CTR Prediction & Recommendation System</p>
+        </div>
+
+        <div class="content">
+            <div class="info-box">
+                <p><strong>📊 How it works:</strong> Our machine learning model analyzes YouTube ad features to predict Click-Through Rate (CTR) and recommends the most effective ads to display.</p>
+            </div>
+
+            <div class="form-section">
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label>📈 Number of Records to Process:</label>
+                        <input type="number" id="numRecords" value="1000" min="100" max="100000" step="100">
+                    </div>
+                    <div class="form-group">
+                        <label>🏆 Top N Recommendations:</label>
+                        <input type="number" id="topN" value="10" min="1" max="100">
+                    </div>
+                    <button type="submit">🚀 Get Recommendations</button>
+                    <span class="loading" id="loading">⏳ Processing...</span>
+                </form>
+            </div>
+
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('num_records', document.getElementById('numRecords').value);
+            formData.append('top_n', document.getElementById('topN').value);
+
+            document.getElementById('loading').style.display = 'inline';
+            document.getElementById('results').innerHTML = '';
+
+            try {
+                const response = await fetch('/recommend', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('results').innerHTML = `<p style="color:red;">❌ Error: ${data.error}</p>`;
+                } else {
+                    let html = '<h2 class="section-title">📊 Performance Metrics</h2><div class="metrics">';
+                    html += `<div class="metric-card"><div class="metric-value">${(data.metrics.avg_click_prob * 100).toFixed(2)}%</div><div class="metric-label">Average CTR</div></div>`;
+                    html += `<div class="metric-card highlight"><div class="metric-value">${(data.metrics.top_avg_click_prob * 100).toFixed(2)}%</div><div class="metric-label">Top ${data.recommendations.length} Avg CTR</div></div>`;
+                    html += `<div class="metric-card highlight"><div class="metric-value">+${data.metrics.improvement.toFixed(1)}%</div><div class="metric-label">CTR Improvement</div></div>`;
+                    html += `<div class="metric-card"><div class="metric-value">${(data.metrics.median_click_prob * 100).toFixed(2)}%</div><div class="metric-label">Median CTR</div></div>`;
+                    html += `<div class="metric-card"><div class="metric-value">${(data.metrics.max_click_prob * 100).toFixed(2)}%</div><div class="metric-label">Max CTR</div></div>`;
+                    html += `<div class="metric-card"><div class="metric-value">${(data.metrics.min_click_prob * 100).toFixed(2)}%</div><div class="metric-label">Min CTR</div></div>`;
+                    html += `<div class="metric-card"><div class="metric-value">${data.metrics.high_ctr_count}</div><div class="metric-label">High CTR Ads (>20%)</div></div>`;
+                    html += `<div class="metric-card"><div class="metric-value">${data.metrics.low_ctr_count}</div><div class="metric-label">Low CTR Ads (<5%)</div></div>`;
+                    html += '</div>';
+                    html += `<h2 class="section-title">🏆 Top ${data.recommendations.length} Recommendations (from ${data.total_candidates} candidates)</h2>`;
+                    html += '<table><tr><th>Rank</th><th>Click Probability</th>';
+
+                    const keys = Object.keys(data.recommendations[0]).filter(k => k !== 'click_prob');
+                    keys.forEach(k => html += `<th>${k}</th>`);
+                    html += '</tr>';
+
+                    data.recommendations.forEach((rec, i) => {
+                        html += `<tr><td>${i+1}</td><td>${(rec.click_prob * 100).toFixed(2)}%</td>`;
+                        keys.forEach(k => html += `<td>${rec[k]}</td>`);
+                        html += '</tr>';
+                    });
+                    html += '</table>';
+                    document.getElementById('results').innerHTML = html;
+                }
+            } catch (error) {
+                document.getElementById('results').innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            }
+
+            document.getElementById('loading').style.display = 'none';
+        };
+    </script>
+        </div>
+    </div>
+</body>
+</html>
